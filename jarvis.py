@@ -1,9 +1,12 @@
-import requests
+import os
+import json
 from firebase_admin import credentials, firestore, initialize_app
+import requests
 from flask import Flask, request, jsonify
 
 # Configuração do Firebase
-cred = credentials.Certificate("malequi-ia-firebase-adminsdk-xyz.json")
+cred_dict = json.loads(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+cred = credentials.Certificate(cred_dict)
 initialize_app(cred)
 db = firestore.client()
 
@@ -40,9 +43,9 @@ def process_command(command, user_id="user1"):
 
     history = get_memory(user_id)
     context = "\n".join([f"Usuário: {cmd}\nJARVIS: {resp}" for cmd, resp in history[-3:]])
-
+    
     if "quem é" in command or "o que é" in command:
-        query = command.replace("quem é", "").replace("o que é", "").strip()
+        query = command.replace("quem é", "").replace("o what é", "").strip()
         print(f"Buscando sobre {query}...")
         result = search_internet(query)
         save_to_memory(user_id, command, result)
